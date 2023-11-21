@@ -1,28 +1,53 @@
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class GameWindow extends JFrame {
 
+    private PlayArea playArea;
+    private TemperatureDisplay tempDisplayLeft, tempDisplayRight;
+    private JButton addButton, resetButton;
+
     public GameWindow() {
-        // Set the title for the JFrame
-        super("Maxwell's Demon Game");
-
-        // Initialize components in the JFrame
-        initializeComponents();
-
-        // Set default close operation
+        setTitle("Maxwell's Demon Game");
+        setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Set the initial size of the window
-        setSize(800, 600);
-
-        // Center the window on the screen
         setLocationRelativeTo(null);
+
+        initializeComponents();
     }
 
     private void initializeComponents() {
-        // For now, just add a simple label (you will add more components later)
-        JLabel label = new JLabel("Maxwell's Demon Game", JLabel.CENTER);
-        add(label);
+        playArea = new PlayArea();
+        add(playArea, BorderLayout.CENTER);
+
+        tempDisplayLeft = new TemperatureDisplay();
+        tempDisplayRight = new TemperatureDisplay();
+        add(tempDisplayLeft, BorderLayout.WEST);
+        add(tempDisplayRight, BorderLayout.EAST);
+
+        JPanel buttonPanel = new JPanel();
+        addButton = new JButton("Add Particles");
+        resetButton = new JButton("Reset");
+        buttonPanel.add(addButton);
+        buttonPanel.add(resetButton);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
+
+    public JButton getAddButton() {
+        return addButton;
+    }
+
+    public JButton getResetButton() {
+        return resetButton;
+    }
+
+    public PlayArea getPlayArea() {
+        return playArea;
+    }
+
+    
+        
 }
+
