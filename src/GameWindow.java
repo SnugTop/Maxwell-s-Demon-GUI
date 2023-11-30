@@ -19,14 +19,20 @@ public class GameWindow extends JFrame {
     }
 
     private void initializeComponents() {
-        playArea = new PlayArea();
-        add(playArea, BorderLayout.CENTER);
-
         tempDisplayLeft = new TemperatureDisplay();
         tempDisplayRight = new TemperatureDisplay();
+    
+        TemperatureUpdateListener tempListener = (leftTemp, rightTemp) -> {
+            tempDisplayLeft.setText("Left Temp: " + leftTemp);
+            tempDisplayRight.setText("Right Temp: " + rightTemp);
+        };
+    
+        playArea = new PlayArea(tempListener); // Now tempDisplayLeft and tempDisplayRight are already initialized
+        add(playArea, BorderLayout.CENTER);
+    
         add(tempDisplayLeft, BorderLayout.WEST);
         add(tempDisplayRight, BorderLayout.EAST);
-
+    
         JPanel buttonPanel = new JPanel();
         addButton = new JButton("Add Particles");
         resetButton = new JButton("Reset");
@@ -34,6 +40,7 @@ public class GameWindow extends JFrame {
         buttonPanel.add(resetButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }
+    
 
     public JButton getAddButton() {
         return addButton;

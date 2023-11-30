@@ -1,27 +1,43 @@
 import javax.swing.JPanel;
+
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class PlayArea extends JPanel {
+
+
+   public class PlayArea extends JPanel {
     private List<Particle> particles;
     private Random random = new Random();
+    private TemperatureUpdateListener temperatureUpdateListener; // Define listener interface
 
-    public PlayArea() {
+    public PlayArea(TemperatureUpdateListener listener) {
         particles = new ArrayList<>();
-        resetGame(); // Initialize the game with the starting particles
+        this.temperatureUpdateListener = listener;
+        //resetGame(); // Initialize the game with the starting particles
     }
-
-    @FunctionalInterface
-public interface TemperatureUpdateListener {
-    void updateTemperatures(double leftTemp, double rightTemp);
-}
-
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        int width = getWidth();
+        int height = getHeight();
+
+        // Draw border
+        int borderWidth = 5; // Set the width of the border
+        g.setColor(Color.BLACK); // Set border color
+        g.drawRect(0, 0, getWidth() - borderWidth, getHeight() - borderWidth);
+
+        // Draw wall and door
+        int wallWidth = 10;
+        int doorWidth = wallWidth;
+        int doorHeight = height / 3;
+        g.setColor(Color.BLACK);
+        g.fillRect(width / 2 - wallWidth / 2, 0, wallWidth, height);
+        g.clearRect(width / 2 - doorWidth / 2, height / 2 - doorHeight / 2, doorWidth, doorHeight);
+
         // Draw each particle
         for (Particle particle : particles) {
             g.setColor(particle.getColor());
@@ -45,13 +61,43 @@ public interface TemperatureUpdateListener {
     }
 
     private Particle createParticle(boolean isHot, boolean isInLeftChamber) {
+        int borderWidth = 5; // Border width
         int speed = isHot ? randomSpeed(Constants.HOT_MIN_SPEED, Constants.HOT_MAX_SPEED)
                           : randomSpeed(Constants.COLD_MIN_SPEED, Constants.COLD_MAX_SPEED);
-        int x = isInLeftChamber ? randomPosition(0, getWidth() / 2)
-                                : randomPosition(getWidth() / 2, getWidth());
-        int y = randomPosition(0, getHeight());
-        return new Particle(x, y, speed, isHot, getAlignmentX());
+
+        int x = isInLeftChamber ? randomPosition(borderWidth, getWidth() / 2 - Constants.PARTICLE_SIZE - borderWidth)
+                                : randomPosition(getWidth() / 2 + borderWidth, getWidth() - Constants.PARTICLE_SIZE - borderWidth);
+        int y = randomPosition(borderWidth, getHeight() - Constants.PARTICLE_SIZE - borderWidth);
+
+        return new Particle(x, y, speed, isHot, 0); // Pass 0 as the value for alignmentX
     }
+    
+
+    public void updateTemperatures() {
+        List<Particle> leftParticles = new ArrayList<>();
+        List<Particle> rightParticles = new ArrayList<>();
+
+        for (Particle particle : particles) {
+            if (particle.getX() < getWidth() / 2) {
+                leftParticles.add(particle);
+            } else {
+                rightParticles.add(particle);
+            }
+        }
+
+        double leftTemp = calculateTemperature(leftParticles);
+        double rightTemp = calculateTemperature(rightParticles);
+        // Trigger an update in the temperature displays
+        if (temperatureUpdateListener != null) {
+            temperatureUpdateListener.updateTemperatures(leftTemp, rightTemp);
+        }
+    }
+
+    @Override
+public void addNotify() {
+    super.addNotify();
+    resetGame(); // Initialize the game here, instead of in the constructor
+}
 
     private int randomSpeed(int min, int max) {
         return random.nextInt(max - min + 1) + min;
@@ -79,11 +125,7 @@ public interface TemperatureUpdateListener {
         return totalSquaredSpeed / particlesInChamber.size();
     }
 
-    public void updateTemperatures() {
-        double leftTemp = calculateTemperature(particles/* particles in the left chamber */);
-        double rightTemp = calculateTemperature(particles/* particles in the right chamber */);
-        // Trigger an update in the temperature displays, possibly through a callback
-    }
+    
    
         
     

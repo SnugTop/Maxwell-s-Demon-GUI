@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParticleManager {
+/*public class ParticleManager {
     private List<Particle> particles;
 
     public ParticleManager() {
@@ -17,3 +17,4 @@ public class ParticleManager {
         // Logic to update all particles' positions
     }
 }
+*/

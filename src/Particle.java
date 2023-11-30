@@ -27,18 +27,18 @@ public class Particle {
         vy = speed * Math.sin(angle);
     }
 
-    public void move(int width, int height) {
+    public void move(int width, int height, int borderWidth) {
         x += vx;
         y += vy;
 
-        // Boundary collision logic
-        if (x < 0 || x > width - Constants.PARTICLE_SIZE) {
+        // Adjusted boundary collision logic for borders
+        if (x < borderWidth || x > width - Constants.PARTICLE_SIZE - borderWidth) {
             vx = -vx; // Reverse X direction
-            x = Math.max(0, Math.min(x, width - Constants.PARTICLE_SIZE)); // Prevent sticking to the wall
+            x = Math.max(borderWidth, Math.min(x, width - Constants.PARTICLE_SIZE - borderWidth));
         }
-        if (y < 0 || y > height - Constants.PARTICLE_SIZE) {
+        if (y < borderWidth || y > height - Constants.PARTICLE_SIZE - borderWidth) {
             vy = -vy; // Reverse Y direction
-            y = Math.max(0, Math.min(y, height - Constants.PARTICLE_SIZE)); // Prevent sticking to the wall
+            y = Math.max(borderWidth, Math.min(y, height - Constants.PARTICLE_SIZE - borderWidth));
         }
     }
 
