@@ -52,6 +52,7 @@ import java.util.Random;
         particles.add(createParticle(true, false)); // Hot particle in right/bottom chamber
         particles.add(createParticle(false, false)); // Cold particle in right/bottom chamber
     }
+    
 
     public void resetGame() {
         particles.clear(); // Remove all particles
@@ -64,12 +65,21 @@ import java.util.Random;
         int borderWidth = 5; // Border width
         int speed = isHot ? randomSpeed(Constants.HOT_MIN_SPEED, Constants.HOT_MAX_SPEED)
                           : randomSpeed(Constants.COLD_MIN_SPEED, Constants.COLD_MAX_SPEED);
-
-        int x = isInLeftChamber ? randomPosition(borderWidth, getWidth() / 2 - Constants.PARTICLE_SIZE - borderWidth)
-                                : randomPosition(getWidth() / 2 + borderWidth, getWidth() - Constants.PARTICLE_SIZE - borderWidth);
+    
+        // Calculate the x-coordinate for the particle
+        int x;
+        if (isInLeftChamber) {
+            // For left chamber, position should be between the left border and the middle wall
+            x = randomPosition(borderWidth, getWidth() / 2 - Constants.PARTICLE_SIZE - borderWidth);
+        } else {
+            // For right chamber, position should be between the middle wall and the right border
+            x = randomPosition(getWidth() / 2 + borderWidth, getWidth() - Constants.PARTICLE_SIZE - borderWidth);
+        }
+    
+        // Calculate the y-coordinate for the particle
         int y = randomPosition(borderWidth, getHeight() - Constants.PARTICLE_SIZE - borderWidth);
-
-        return new Particle(x, y, speed, isHot, 0); // Pass 0 as the value for alignmentX
+    
+        return new Particle(x, y, speed, isHot);
     }
     
 
@@ -126,7 +136,23 @@ public void addNotify() {
     }
 
     
-   
+    public void handleResize() {
+        // Logic to adjust particles or other elements when resizing
+        repositionParticles();
+        repaint();
+    }
+
+    public List<Particle> getParticles() {
+        return particles;
+    }
+    
+    private void repositionParticles() {
+        // Adjust particle positions within the new bounds of the PlayArea
+        for (Particle particle : particles) {
+            particle.updateBounds(getWidth(), getHeight());
+        }
+    }
+    
         
     
 

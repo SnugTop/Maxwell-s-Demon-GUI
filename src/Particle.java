@@ -3,18 +3,18 @@ import java.awt.Graphics;
 import java.util.Random;
 
 public class Particle {
-
     private int x, y; // Position
     private double vx, vy; // Velocity components
     private boolean isHot;
-    private float alignmentX;
     private static final Random random = new Random();
 
-    public Particle(int x, int y, int speed, boolean isHot, float alignmentX) {
+    // Bounds for movement
+    private int maxX, maxY;
+
+    public Particle(int x, int y, int speed, boolean isHot) {
         this.x = x;
         this.y = y;
         this.isHot = isHot;
-        this.alignmentX = alignmentX;
 
         // Initialize velocity components based on speed
         initializeVelocity(speed);
@@ -27,38 +27,36 @@ public class Particle {
         vy = speed * Math.sin(angle);
     }
 
-    public void move(int width, int height, int borderWidth) {
+    public void updateBounds(int width, int height) {
+        maxX = width - Constants.PARTICLE_SIZE;
+        maxY = height - Constants.PARTICLE_SIZE;
+    }
+
+    public void move() {
         x += vx;
         y += vy;
 
-        // Adjusted boundary collision logic for borders
-        if (x < borderWidth || x > width - Constants.PARTICLE_SIZE - borderWidth) {
+        // Boundary collision logic
+        if (x < 0 || x > maxX) {
             vx = -vx; // Reverse X direction
-            x = Math.max(borderWidth, Math.min(x, width - Constants.PARTICLE_SIZE - borderWidth));
+            x = Math.max(0, Math.min(x, maxX)); // Prevent sticking to the wall
         }
-        if (y < borderWidth || y > height - Constants.PARTICLE_SIZE - borderWidth) {
+        if (y < 0 || y > maxY) {
             vy = -vy; // Reverse Y direction
-            y = Math.max(borderWidth, Math.min(y, height - Constants.PARTICLE_SIZE - borderWidth));
+            y = Math.max(0, Math.min(y, maxY)); // Prevent sticking to the wall
         }
     }
-
 
     public void draw(Graphics g) {
         g.setColor(isHot ? Color.RED : Color.BLUE);
         g.fillOval(x, y, Constants.PARTICLE_SIZE, Constants.PARTICLE_SIZE);
     }
 
-        public Color getColor() {
+    public Color getColor() {
         return isHot ? Color.RED : Color.BLUE;
     }
 
-    public float getAlignmentX() {
-        return alignmentX;
-    }
-
-    public void setAlignmentX(float alignmentX) {
-        this.alignmentX = alignmentX;
-    }
+    // Removed alignmentX methods since they are not used in your class
 
     public int getX() {
         return x;
@@ -75,7 +73,6 @@ public class Particle {
     public void setY(int y) {
         this.y = y;
     }
-
 
     public boolean isHot() {
         return isHot;

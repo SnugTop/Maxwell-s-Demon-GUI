@@ -2,6 +2,8 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class GameWindow extends JFrame {
 
@@ -14,10 +16,19 @@ public class GameWindow extends JFrame {
         setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
+    
+        // Add the component listener for handling window resize
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // Update the play area size and reposition particles if necessary
+                playArea.handleResize();
+            }
+        });
+    
+        // Initialize components
         initializeComponents();
     }
-
     private void initializeComponents() {
         tempDisplayLeft = new TemperatureDisplay();
         tempDisplayRight = new TemperatureDisplay();
@@ -41,6 +52,7 @@ public class GameWindow extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
     }
     
+   
 
     public JButton getAddButton() {
         return addButton;
