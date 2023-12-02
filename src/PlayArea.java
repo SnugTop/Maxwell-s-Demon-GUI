@@ -1,159 +1,212 @@
-import javax.swing.JPanel;
-
-import java.awt.Color;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-
-
-   public class PlayArea extends JPanel {
+public class PlayArea extends JPanel {
     private List<Particle> particles;
-    private Random random = new Random();
-    private TemperatureUpdateListener temperatureUpdateListener; // Define listener interface
+    private boolean doorOpen;
+    private Rectangle leftChamber;
+    private Rectangle rightChamber;
+    private Rectangle door;
+    private boolean initialized = false;
+    private final int DOOR_WIDTH = 10;
+    private int previousWidth;
+    private int previousHeight;
+    private Timer timer;
 
-    public PlayArea(TemperatureUpdateListener listener) {
+    public PlayArea() {
         particles = new ArrayList<>();
-        this.temperatureUpdateListener = listener;
-        //resetGame(); // Initialize the game with the starting particles
+        doorOpen = false;
+        previousWidth = getWidth();
+        previousHeight = getHeight();
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                doorOpen = true;
+                repaint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                doorOpen = false;
+                repaint();
+            }
+        });
+
+        addComponentListener(new ComponentAdapter() {
+            private int lastWidth = -1;
+            private int lastHeight = -1;
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int currentWidth = getWidth();
+                int currentHeight = getHeight();
+
+                if (currentWidth != lastWidth || currentHeight != lastHeight) {
+                    lastWidth = currentWidth;
+                    lastHeight = currentHeight;
+
+                    SwingUtilities.invokeLater(() -> {
+                        if (initialized) {
+                            handleResize();
+                        } else if (getWidth() > 0 && getHeight() > 0) {
+                            initializeGame();
+                        }
+                    });
+                }
+            }
+        });
+        SwingUtilities.invokeLater(() -> {
+            if (!initialized) {
+                initializeGame();
+            }
+        });
+
+        timer = new Timer(100, e -> updateParticles()); // 100 ms delay
+        timer.start();
+    }
+
+    private void initializeGame() {
+        if (!initialized) {
+            int currentWidth = getWidth();
+            int currentHeight = getHeight();
+
+            initializeChambersAndDoor(currentWidth, currentHeight);
+
+            addInitialParticles();
+
+            previousWidth = currentWidth;
+            previousHeight = currentHeight;
+
+            initialized = true;
+        }
+    }
+
+    private void initializeChambersAndDoor(int width, int height) {
+        int wallPosition = width / 2;
+        leftChamber = new Rectangle(0, 0, wallPosition, height);
+        rightChamber = new Rectangle(wallPosition, 0, wallPosition, height);
+        door = new Rectangle(wallPosition - DOOR_WIDTH / 2, height / 3, DOOR_WIDTH, height / 3);
+    }
+
+    private void addInitialParticles() {
+        // Add two particles to each chamber
+        addParticle(leftChamber, true); // Hot particle
+        addParticle(leftChamber, false); // Cold particle
+        addParticle(rightChamber, true); // Hot particle
+        addParticle(rightChamber, false); // Cold particle
+    }
+
+    public void addParticle(Rectangle chamber, boolean isHot) {
+        Random rand = new Random();
+        int speed = isHot ? rand.nextInt(3) + 4 : rand.nextInt(2) + 2; // 4-6 for hot, 2-4 for cold
+        Particle particle = new Particle(
+                chamber.x + rand.nextInt(chamber.width),
+                chamber.y + rand.nextInt(chamber.height),
+                convertCmToPixels(speed),
+                isHot ? Color.RED : Color.BLUE);
+        particles.add(particle);
+    }
+
+    public void addParticles() {
+        // Add new particles to each chamber
+        addParticle(leftChamber, true);
+        addParticle(leftChamber, false);
+        addParticle(rightChamber, true);
+        addParticle(rightChamber, false);
+    }
+
+    public void resetGame() {
+        particles.clear();
+        addInitialParticles();
+        repaint();
+    }
+
+    private void handleResize() {
+        int newWidth = getWidth();
+        int newHeight = getHeight();
+
+        if (newWidth != previousWidth || newHeight != previousHeight) {
+            double scaleX = previousWidth > 0 ? (double) newWidth / previousWidth : 1.0;
+            double scaleY = previousHeight > 0 ? (double) newHeight / previousHeight : 1.0;
+
+            for (Particle particle : particles) {
+                particle.updatePosition(scaleX, scaleY);
+                particle.setX(Math.min(Math.max(particle.getX(), 0), newWidth - 10));
+                particle.setY(Math.min(Math.max(particle.getY(), 0), newHeight - 10));
+            }
+
+            initializeChambersAndDoor(newWidth, newHeight);
+
+            previousWidth = newWidth;
+            previousHeight = newHeight;
+        }
+
+        repaint();
+    }
+
+    private double calculateTemperature(List<Particle> chamberParticles) {
+        // Calculate the temperature of a chamber
+        double totalSquaredSpeed = 0;
+        for (Particle particle : chamberParticles) {
+            totalSquaredSpeed += Math.pow(particle.getSpeed(), 2);
+        }
+        return chamberParticles.isEmpty() ? 0 : totalSquaredSpeed / chamberParticles.size();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        int width = getWidth();
-        int height = getHeight();
 
-        // Draw border
-        int borderWidth = 5; // Set the width of the border
-        g.setColor(Color.BLACK); // Set border color
-        g.drawRect(0, 0, getWidth() - borderWidth, getHeight() - borderWidth);
+        // Draw chambers, wall, door, and particles
+        drawGameElements(g);
+    }
 
-        // Draw wall and door
-        int wallWidth = 10;
-        int doorWidth = wallWidth;
-        int doorHeight = height / 3;
+    private void drawGameElements(Graphics g) {
+        // Draw chambers
         g.setColor(Color.BLACK);
-        g.fillRect(width / 2 - wallWidth / 2, 0, wallWidth, height);
-        g.clearRect(width / 2 - doorWidth / 2, height / 2 - doorHeight / 2, doorWidth, doorHeight);
+        g.fillRect(leftChamber.x, leftChamber.y, leftChamber.width, leftChamber.height);
+        g.fillRect(rightChamber.x, rightChamber.y, rightChamber.width, rightChamber.height);
 
-        // Draw each particle
+        // Draw the wall and door
+        drawWallAndDoor(g);
+
+        // Draw particles
         for (Particle particle : particles) {
-            g.setColor(particle.getColor());
-            g.fillOval(particle.getX(), particle.getY(), Constants.PARTICLE_SIZE, Constants.PARTICLE_SIZE);
+            // particle.move(door, door, doorOpen);
+            particle.draw(g);
         }
     }
 
-    public void addParticles() {
-        // Add one hot and one cold particle to each chamber
-        particles.add(createParticle(true, true)); // Hot particle in left/top chamber
-        particles.add(createParticle(false, true)); // Cold particle in left/top chamber
-        particles.add(createParticle(true, false)); // Hot particle in right/bottom chamber
-        particles.add(createParticle(false, false)); // Cold particle in right/bottom chamber
-    }
-    
+    private void drawWallAndDoor(Graphics g) {
+        g.setColor(Color.YELLOW);
+        int wallPosition = getWidth() / 2;
+        g.drawLine(wallPosition, 0, wallPosition, door.y);
+        g.drawLine(wallPosition, door.y + door.height, wallPosition, getHeight()); // Line below the door
 
-    public void resetGame() {
-        particles.clear(); // Remove all particles
-        addParticles(); // Add initial set of particles
-        repaint(); // Repaint the play area
-        updateTemperatures(); // Update temperature displays
-    }
-
-    private Particle createParticle(boolean isHot, boolean isInLeftChamber) {
-        int borderWidth = 5; // Border width
-        int speed = isHot ? randomSpeed(Constants.HOT_MIN_SPEED, Constants.HOT_MAX_SPEED)
-                          : randomSpeed(Constants.COLD_MIN_SPEED, Constants.COLD_MAX_SPEED);
-    
-        // Calculate the x-coordinate for the particle
-        int x;
-        if (isInLeftChamber) {
-            // For left chamber, position should be between the left border and the middle wall
-            x = randomPosition(borderWidth, getWidth() / 2 - Constants.PARTICLE_SIZE - borderWidth);
-        } else {
-            // For right chamber, position should be between the middle wall and the right border
-            x = randomPosition(getWidth() / 2 + borderWidth, getWidth() - Constants.PARTICLE_SIZE - borderWidth);
+        if (!doorOpen) {
+            g.setColor(Color.RED);
+            g.fillRect(door.x, door.y, door.width, door.height);
         }
-    
-        // Calculate the y-coordinate for the particle
-        int y = randomPosition(borderWidth, getHeight() - Constants.PARTICLE_SIZE - borderWidth);
-    
-        return new Particle(x, y, speed, isHot);
     }
-    
 
-    public void updateTemperatures() {
-        List<Particle> leftParticles = new ArrayList<>();
-        List<Particle> rightParticles = new ArrayList<>();
+    private int convertCmToPixels(double cm) {
+        int resolution = Toolkit.getDefaultToolkit().getScreenResolution();
+        double pixelsPerInch = resolution;
+        double pixelsPerCm = pixelsPerInch / 2.54; // 1 inch = 2.54 cm
+        return (int) (cm * pixelsPerCm);
+    }
 
+    private void updateParticles() {
+        Rectangle centerWall = new Rectangle(getWidth() / 2 - DOOR_WIDTH / 2, 0, DOOR_WIDTH, getHeight());
         for (Particle particle : particles) {
-            if (particle.getX() < getWidth() / 2) {
-                leftParticles.add(particle);
-            } else {
-                rightParticles.add(particle);
-            }
+            particle.move(getBounds(), door, doorOpen, centerWall);
         }
-
-        double leftTemp = calculateTemperature(leftParticles);
-        double rightTemp = calculateTemperature(rightParticles);
-        // Trigger an update in the temperature displays
-        if (temperatureUpdateListener != null) {
-            temperatureUpdateListener.updateTemperatures(leftTemp, rightTemp);
-        }
-    }
-
-    @Override
-public void addNotify() {
-    super.addNotify();
-    resetGame(); // Initialize the game here, instead of in the constructor
-}
-
-    private int randomSpeed(int min, int max) {
-        return random.nextInt(max - min + 1) + min;
-    }
-
-    private int randomPosition(int min, int max) {
-        if (max <= min) {
-            // Handle this case appropriately, maybe log an error or adjust values
-            System.out.println("Invalid bounds for randomPosition: min=" + min + ", max=" + max);
-            return min; // or some other default handling
-        }
-        return random.nextInt(max - min) + min;
-    }
-    public double calculateTemperature(List<Particle> particlesInChamber) {
-        if (particlesInChamber.isEmpty()) {
-            return 0;
-        }
-
-        double totalSquaredSpeed = 0;
-        for (Particle particle : particlesInChamber) {
-            double speed = particle.getSpeed();
-            totalSquaredSpeed += speed * speed;
-        }
-
-        return totalSquaredSpeed / particlesInChamber.size();
-    }
-
-    
-    public void handleResize() {
-        // Logic to adjust particles or other elements when resizing
-        repositionParticles();
         repaint();
     }
-
-    public List<Particle> getParticles() {
-        return particles;
-    }
-    
-    private void repositionParticles() {
-        // Adjust particle positions within the new bounds of the PlayArea
-        for (Particle particle : particles) {
-            particle.updateBounds(getWidth(), getHeight());
-        }
-    }
-    
-        
-    
 
 }

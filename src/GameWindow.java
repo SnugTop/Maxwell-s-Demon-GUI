@@ -1,72 +1,71 @@
-import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GameWindow extends JFrame {
 
     private PlayArea playArea;
-    private TemperatureDisplay tempDisplayLeft, tempDisplayRight;
-    private JButton addButton, resetButton;
+    private JButton addParticlesButton;
+    private JButton resetButton;
+    private TemperatureCalculator temperatureCalculator;
+    private JLabel temperatureRight;
+    private JLabel temperatureLeft;
 
     public GameWindow() {
-        setTitle("Maxwell's Demon Game");
-        setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+        // Windo Setup
+        setTitle("Maxwell's Demon");
+        setSize(800, 600);
+        setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-    
-        // Add the component listener for handling window resize
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                // Update the play area size and reposition particles if necessary
-                playArea.handleResize();
-            }
-        });
-    
-        // Initialize components
-        initializeComponents();
-    }
-    private void initializeComponents() {
-        tempDisplayLeft = new TemperatureDisplay();
-        tempDisplayRight = new TemperatureDisplay();
-    
-        TemperatureUpdateListener tempListener = (leftTemp, rightTemp) -> {
-            tempDisplayLeft.setText("Left Temp: " + leftTemp);
-            tempDisplayRight.setText("Right Temp: " + rightTemp);
-        };
-    
-        playArea = new PlayArea(tempListener); // Now tempDisplayLeft and tempDisplayRight are already initialized
+
+        playArea = new PlayArea();
+        temperatureCalculator = new TemperatureCalculator();
         add(playArea, BorderLayout.CENTER);
-    
-        add(tempDisplayLeft, BorderLayout.WEST);
-        add(tempDisplayRight, BorderLayout.EAST);
-    
-        JPanel buttonPanel = new JPanel();
-        addButton = new JButton("Add Particles");
+
+        // Intialize Buttons
+        addParticlesButton = new JButton("Add Particles");
         resetButton = new JButton("Reset");
-        buttonPanel.add(addButton);
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        buttonPanel.add(addParticlesButton);
         buttonPanel.add(resetButton);
         add(buttonPanel, BorderLayout.SOUTH);
-    }
-    
-   
 
-    public JButton getAddButton() {
-        return addButton;
-    }
+        // Initialize Temperature Labels
+        temperatureRight = new JLabel("Temperature Right: ");
+        temperatureLeft = new JLabel("Temperature Left: ");
+        JPanel temperaturePanel = new JPanel(new GridLayout(1, 2));
+        temperaturePanel.add(temperatureLeft);
+        temperaturePanel.add(temperatureRight);
+        add(temperaturePanel, BorderLayout.NORTH);
 
-    public JButton getResetButton() {
-        return resetButton;
-    }
+        setupButtonListeners();
 
-    public PlayArea getPlayArea() {
-        return playArea;
     }
 
-    
-        
+    private void setupButtonListeners() {
+        addParticlesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                playArea.addParticles();
+                playArea.repaint();
+            }
+        });
+
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                playArea.resetGame();
+                playArea.repaint();
+            }
+        });
+    }
+
+    public void setTemperatureRight(double temperature) {
+        temperatureRight.setText("Temp Right: " + temperature);
+    }
+
+    public void setTemperatureLeft(double temperature) {
+        temperatureLeft.setText("Temp Left: " + temperature);
+    }
 }
-

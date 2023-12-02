@@ -1,12 +1,10 @@
-public class Maxwell {
-    private static void createAndShowGUI() {
-        GameWindow gameWindow = new GameWindow();
-        gameWindow.setVisible(true);
-        
-        GameController gameController = new GameController(gameWindow);
-    }
+import javax.swing.SwingUtilities;
 
+public class Maxwell {
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(() -> createAndShowGUI());
+        SwingUtilities.invokeLater(() -> {
+            GameWindow window = new GameWindow();
+            window.setVisible(true);
+        });
     }
 }
