@@ -12,9 +12,10 @@ public class PlayArea extends JPanel {
     private Rectangle rightChamber;
     private Rectangle door;
     private boolean initialized = false;
-    private final int DOOR_WIDTH = 10; // Adjust as needed
+    private final int DOOR_WIDTH = 10;
     private int previousWidth;
     private int previousHeight;
+    private Timer timer;
 
     public PlayArea() {
         particles = new ArrayList<>();
@@ -22,8 +23,6 @@ public class PlayArea extends JPanel {
         previousWidth = getWidth();
         previousHeight = getHeight();
 
-
-        // Add mouse listener for door control
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -65,22 +64,24 @@ public class PlayArea extends JPanel {
             if (!initialized) {
                 initializeGame();
             }
-        }); 
+        });
 
+        timer = new Timer(100, e -> updateParticles()); // 100 ms delay
+        timer.start();
     }
 
     private void initializeGame() {
         if (!initialized) {
             int currentWidth = getWidth();
             int currentHeight = getHeight();
-    
+
             initializeChambersAndDoor(currentWidth, currentHeight);
-    
+
             addInitialParticles();
-    
+
             previousWidth = currentWidth;
             previousHeight = currentHeight;
-    
+
             initialized = true;
         }
     }
@@ -128,26 +129,25 @@ public class PlayArea extends JPanel {
     private void handleResize() {
         int newWidth = getWidth();
         int newHeight = getHeight();
-    
+
         if (newWidth != previousWidth || newHeight != previousHeight) {
             double scaleX = previousWidth > 0 ? (double) newWidth / previousWidth : 1.0;
             double scaleY = previousHeight > 0 ? (double) newHeight / previousHeight : 1.0;
-    
+
             for (Particle particle : particles) {
                 particle.updatePosition(scaleX, scaleY);
                 particle.setX(Math.min(Math.max(particle.getX(), 0), newWidth - 10));
                 particle.setY(Math.min(Math.max(particle.getY(), 0), newHeight - 10));
             }
-    
+
             initializeChambersAndDoor(newWidth, newHeight);
-    
+
             previousWidth = newWidth;
             previousHeight = newHeight;
         }
-    
+
         repaint();
     }
-    
 
     private double calculateTemperature(List<Particle> chamberParticles) {
         // Calculate the temperature of a chamber
@@ -168,7 +168,7 @@ public class PlayArea extends JPanel {
 
     private void drawGameElements(Graphics g) {
         // Draw chambers
-        g.setColor(Color.WHITE);
+        g.setColor(Color.BLACK);
         g.fillRect(leftChamber.x, leftChamber.y, leftChamber.width, leftChamber.height);
         g.fillRect(rightChamber.x, rightChamber.y, rightChamber.width, rightChamber.height);
 
@@ -177,20 +177,20 @@ public class PlayArea extends JPanel {
 
         // Draw particles
         for (Particle particle : particles) {
-            particle.move();
+            // particle.move(door, door, doorOpen);
             particle.draw(g);
         }
     }
 
     private void drawWallAndDoor(Graphics g) {
-        g.setColor(Color.BLACK); // Color for the wall
+        g.setColor(Color.YELLOW);
         int wallPosition = getWidth() / 2;
-        g.drawLine(wallPosition, 0, wallPosition, door.y); // Line above the door
+        g.drawLine(wallPosition, 0, wallPosition, door.y);
         g.drawLine(wallPosition, door.y + door.height, wallPosition, getHeight()); // Line below the door
 
         if (!doorOpen) {
-            g.setColor(Color.GRAY);
-            g.fillRect(door.x, door.y, door.width, door.height); // Draw the door
+            g.setColor(Color.RED);
+            g.fillRect(door.x, door.y, door.width, door.height);
         }
     }
 
@@ -199,6 +199,14 @@ public class PlayArea extends JPanel {
         double pixelsPerInch = resolution;
         double pixelsPerCm = pixelsPerInch / 2.54; // 1 inch = 2.54 cm
         return (int) (cm * pixelsPerCm);
+    }
+
+    private void updateParticles() {
+        Rectangle centerWall = new Rectangle(getWidth() / 2 - DOOR_WIDTH / 2, 0, DOOR_WIDTH, getHeight());
+        for (Particle particle : particles) {
+            particle.move(getBounds(), door, doorOpen, centerWall);
+        }
+        repaint();
     }
 
 }
