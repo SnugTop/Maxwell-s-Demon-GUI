@@ -13,13 +13,15 @@ public class PlayArea extends JPanel {
     private Rectangle door;
     private boolean initialized = false;
     private final int DOOR_WIDTH = 10; // Adjust as needed
+    private int previousWidth;
+    private int previousHeight;
 
     public PlayArea() {
         particles = new ArrayList<>();
         doorOpen = false;
+        previousWidth = getWidth();
+        previousHeight = getHeight();
 
-        // Initialize chambers and door
-        //initializeChambersAndDoor();
 
         // Add mouse listener for door control
         addMouseListener(new MouseAdapter() {
@@ -35,30 +37,55 @@ public class PlayArea extends JPanel {
                 repaint();
             }
         });
+
         addComponentListener(new ComponentAdapter() {
+            private int lastWidth = -1;
+            private int lastHeight = -1;
+
             @Override
-            public void componentShown(ComponentEvent e) {
-                if (!initialized) {
-                    initializeChambersAndDoor();
-                    addInitialParticles();
-                    initialized = true;
+            public void componentResized(ComponentEvent e) {
+                int currentWidth = getWidth();
+                int currentHeight = getHeight();
+
+                if (currentWidth != lastWidth || currentHeight != lastHeight) {
+                    lastWidth = currentWidth;
+                    lastHeight = currentHeight;
+
+                    SwingUtilities.invokeLater(() -> {
+                        if (initialized) {
+                            handleResize();
+                        } else if (getWidth() > 0 && getHeight() > 0) {
+                            initializeGame();
+                        }
+                    });
                 }
             }
         });
+        SwingUtilities.invokeLater(() -> {
+            if (!initialized) {
+                initializeGame();
+            }
+        }); 
 
     }
 
     private void initializeGame() {
         if (!initialized) {
-            initializeChambersAndDoor();
+            int currentWidth = getWidth();
+            int currentHeight = getHeight();
+    
+            initializeChambersAndDoor(currentWidth, currentHeight);
+    
             addInitialParticles();
+    
+            previousWidth = currentWidth;
+            previousHeight = currentHeight;
+    
             initialized = true;
         }
     }
 
-    private void initializeChambersAndDoor() {
-        int width = getWidth();
-        int height = getHeight();
+    private void initializeChambersAndDoor(int width, int height) {
         int wallPosition = width / 2;
         leftChamber = new Rectangle(0, 0, wallPosition, height);
         rightChamber = new Rectangle(wallPosition, 0, wallPosition, height);
@@ -98,6 +125,30 @@ public class PlayArea extends JPanel {
         repaint();
     }
 
+    private void handleResize() {
+        int newWidth = getWidth();
+        int newHeight = getHeight();
+    
+        if (newWidth != previousWidth || newHeight != previousHeight) {
+            double scaleX = previousWidth > 0 ? (double) newWidth / previousWidth : 1.0;
+            double scaleY = previousHeight > 0 ? (double) newHeight / previousHeight : 1.0;
+    
+            for (Particle particle : particles) {
+                particle.updatePosition(scaleX, scaleY);
+                particle.setX(Math.min(Math.max(particle.getX(), 0), newWidth - 10));
+                particle.setY(Math.min(Math.max(particle.getY(), 0), newHeight - 10));
+            }
+    
+            initializeChambersAndDoor(newWidth, newHeight);
+    
+            previousWidth = newWidth;
+            previousHeight = newHeight;
+        }
+    
+        repaint();
+    }
+    
+
     private double calculateTemperature(List<Particle> chamberParticles) {
         // Calculate the temperature of a chamber
         double totalSquaredSpeed = 0;
@@ -110,28 +161,36 @@ public class PlayArea extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        initializeGame();
+
+        // Draw chambers, wall, door, and particles
+        drawGameElements(g);
+    }
+
+    private void drawGameElements(Graphics g) {
         // Draw chambers
         g.setColor(Color.WHITE);
         g.fillRect(leftChamber.x, leftChamber.y, leftChamber.width, leftChamber.height);
         g.fillRect(rightChamber.x, rightChamber.y, rightChamber.width, rightChamber.height);
 
         // Draw the wall and door
+        drawWallAndDoor(g);
+
+        // Draw particles
+        for (Particle particle : particles) {
+            particle.move();
+            particle.draw(g);
+        }
+    }
+
+    private void drawWallAndDoor(Graphics g) {
         g.setColor(Color.BLACK); // Color for the wall
         int wallPosition = getWidth() / 2;
-        // Draw lines for the wall above and below the door
         g.drawLine(wallPosition, 0, wallPosition, door.y); // Line above the door
         g.drawLine(wallPosition, door.y + door.height, wallPosition, getHeight()); // Line below the door
 
         if (!doorOpen) {
             g.setColor(Color.GRAY);
             g.fillRect(door.x, door.y, door.width, door.height); // Draw the door
-        }
-
-        // Draw particles
-        for (Particle particle : particles) {
-            particle.move();
-            particle.draw(g);
         }
     }
 

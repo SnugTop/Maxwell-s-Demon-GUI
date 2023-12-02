@@ -4,7 +4,9 @@ import java.util.Random;
 
 // Inner class for Particle
     class Particle {
-        private int x, y, speed;
+        int x;
+        int y;
+        private int speed;
         private Color color;
 
         public Particle(int x, int y, int speed, Color color) {
@@ -26,5 +28,26 @@ import java.util.Random;
 
         public int getSpeed() {
             return speed;
+        }
+
+        public int getX() {
+            return x;
+        }
+    
+        public void setX(int x) {
+            this.x = x;
+        }
+    
+        public int getY() {
+            return y;
+        }
+    
+        public void setY(int y) {
+            this.y = y;
+        }
+    
+        public void updatePosition(double scaleX, double scaleY) {
+            this.x = (int) (this.x * scaleX);
+            this.y = (int) (this.y * scaleY);
         }
     }
