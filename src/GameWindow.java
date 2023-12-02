@@ -49,14 +49,16 @@ public class GameWindow extends JFrame {
             addParticlesButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    //playArea.addParticles();
+                    playArea.addParticles();
+                    playArea.repaint();
                 }
             });
     
             resetButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                   // playArea.reset();
+                    playArea.resetGame();
+                    playArea.repaint();
                 }
             });
         }
