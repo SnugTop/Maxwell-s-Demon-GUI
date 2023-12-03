@@ -8,7 +8,6 @@ public class GameWindow extends JFrame {
     private PlayArea playArea;
     private JButton addParticlesButton;
     private JButton resetButton;
-    private TemperatureCalculator temperatureCalculator;
     private JLabel temperatureRight;
     private JLabel temperatureLeft;
 
@@ -20,7 +19,6 @@ public class GameWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         playArea = new PlayArea();
-        temperatureCalculator = new TemperatureCalculator();
         add(playArea, BorderLayout.CENTER);
 
         // Intialize Buttons
@@ -41,6 +39,16 @@ public class GameWindow extends JFrame {
 
         setupButtonListeners();
 
+        Timer temperatureUpdateTimer = new Timer(1000, e -> updateTemperatures());
+        temperatureUpdateTimer.start();
+
+    }
+
+    private void updateTemperatures() {
+        double tempLeft = playArea.calculateChamberTemperature(playArea.getLeftChamberParticles());
+        double tempRight = playArea.calculateChamberTemperature(playArea.getRightChamberParticles());
+        setTemperatureLeft(tempLeft);
+        setTemperatureRight(tempRight);
     }
 
     private void setupButtonListeners() {
@@ -62,10 +70,11 @@ public class GameWindow extends JFrame {
     }
 
     public void setTemperatureRight(double temperature) {
-        temperatureRight.setText("Temp Right: " + temperature);
+        temperatureRight.setText("Temp Right: " + String.format("%.2f", temperature));
     }
-
+    
     public void setTemperatureLeft(double temperature) {
-        temperatureLeft.setText("Temp Left: " + temperature);
+        temperatureLeft.setText("Temp Left: " + String.format("%.2f", temperature));
     }
+    
 }
