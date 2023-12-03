@@ -212,16 +212,6 @@ public class PlayArea extends JPanel {
         return chamberParticles.isEmpty() ? 0 : totalSquaredSpeed / chamberParticles.size();
     }
     
-
-    private double calculateTemperature(List<Particle> chamberParticles) {
-        // Calculate the temperature of a chamber
-        double totalSquaredSpeed = 0;
-        for (Particle particle : chamberParticles) {
-            totalSquaredSpeed += Math.pow(particle.getSpeed(), 2);
-        }
-        return chamberParticles.isEmpty() ? 0 : totalSquaredSpeed / chamberParticles.size();
-    }
-
     public List<Particle> getLeftChamberParticles() {
         return particles.stream().filter(p -> p.x < getWidth() / 2).collect(Collectors.toList());
     }
