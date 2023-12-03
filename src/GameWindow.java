@@ -41,6 +41,16 @@ public class GameWindow extends JFrame {
 
         setupButtonListeners();
 
+        Timer temperatureUpdateTimer = new Timer(1000, e -> updateTemperatures());
+        temperatureUpdateTimer.start();
+
+    }
+
+    private void updateTemperatures() {
+        double tempLeft = playArea.calculateChamberTemperature(playArea.getLeftChamberParticles());
+        double tempRight = playArea.calculateChamberTemperature(playArea.getRightChamberParticles());
+        setTemperatureLeft(tempLeft);
+        setTemperatureRight(tempRight);
     }
 
     private void setupButtonListeners() {

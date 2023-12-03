@@ -8,8 +8,8 @@ public class Particle {
     int x;
     int y;
     private int speed;
-    private double vx;
-    private double vy;
+    double vx;
+    double vy;
     private double speedPxPerSec; // Speed in pixels per second
     private Color color;
 
@@ -87,6 +87,14 @@ public class Particle {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public double getVx() {
+        return vx;
+    }
+
+    public double getVy() {
+        return vy;
     }
 
     public void updatePosition(double scaleX, double scaleY) {

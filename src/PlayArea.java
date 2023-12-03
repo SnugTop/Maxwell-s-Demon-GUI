@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class PlayArea extends JPanel {
     private List<Particle> particles;
@@ -149,15 +150,6 @@ public class PlayArea extends JPanel {
         repaint();
     }
 
-    private double calculateTemperature(List<Particle> chamberParticles) {
-        // Calculate the temperature of a chamber
-        double totalSquaredSpeed = 0;
-        for (Particle particle : chamberParticles) {
-            totalSquaredSpeed += Math.pow(particle.getSpeed(), 2);
-        }
-        return chamberParticles.isEmpty() ? 0 : totalSquaredSpeed / chamberParticles.size();
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -207,6 +199,35 @@ public class PlayArea extends JPanel {
             particle.move(getBounds(), door, doorOpen, centerWall);
         }
         repaint();
+    }
+
+    double calculateChamberTemperature(List<Particle> chamberParticles) {
+        double totalSquaredSpeed = 0;
+        for (Particle particle : chamberParticles) {
+            double vx = particle.getVx();
+            double vy = particle.getVy();
+            double speed = Math.sqrt(vx * vx + vy * vy);
+            totalSquaredSpeed += speed * speed;
+        }
+        return chamberParticles.isEmpty() ? 0 : totalSquaredSpeed / chamberParticles.size();
+    }
+    
+
+    private double calculateTemperature(List<Particle> chamberParticles) {
+        // Calculate the temperature of a chamber
+        double totalSquaredSpeed = 0;
+        for (Particle particle : chamberParticles) {
+            totalSquaredSpeed += Math.pow(particle.getSpeed(), 2);
+        }
+        return chamberParticles.isEmpty() ? 0 : totalSquaredSpeed / chamberParticles.size();
+    }
+
+    public List<Particle> getLeftChamberParticles() {
+        return particles.stream().filter(p -> p.x < getWidth() / 2).collect(Collectors.toList());
+    }
+
+    public List<Particle> getRightChamberParticles() {
+        return particles.stream().filter(p -> p.x >= getWidth() / 2).collect(Collectors.toList());
     }
 
 }
