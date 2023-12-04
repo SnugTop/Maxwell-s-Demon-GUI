@@ -1,9 +1,11 @@
 import javax.swing.SwingUtilities;
 
-/** 
- * The Maxwell class is responsible for initializing and displaying the game window.
+/**
+ * The Maxwell class is responsible for initializing and displaying the game
+ * window.
  * It uses SwingUtilities to ensure that the creation and display of the window
- * are done on the Event Dispatch Thread (EDT), which is the recommended practice
+ * are done on the Event Dispatch Thread (EDT), which is the recommended
+ * practice
  * for Swing applications.
  */
 public class Maxwell {

@@ -1,11 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 
-
 /**
  * The GameWindow class extends JFrame and is responsible for creating and
- * displaying the main window of the application. It includes a play area, 
- * buttons for adding particles and resetting the game, and labels to display 
+ * displaying the main window of the application. It includes a play area,
+ * buttons for adding particles and resetting the game, and labels to display
  * the temperature in different chambers.
  */
 public class GameWindow extends JFrame {
@@ -78,7 +77,7 @@ public class GameWindow extends JFrame {
     }
 
     /**
-     * Starts a timer to periodically update the temperature 
+     * Starts a timer to periodically update the temperature
      * readings in the chambers.
      */
     private void startTemperatureUpdateTimer() {
