@@ -104,12 +104,16 @@ public class PlayArea extends JPanel {
 
     public void addParticle(Rectangle chamber, boolean isHot) {
         Random rand = new Random();
-        int speed = isHot ? rand.nextInt(3) + 4 : rand.nextInt(2) + 2; // 4-6 for hot, 2-4 for cold
+        // Speed in cm/s
+        int speedCmPerSec = isHot ? rand.nextInt(3) + 4 : rand.nextInt(2) + 2; // 4-6 for hot, 2-4 for cold
+    
+        // Create a new particle with the specified speed in cm/s
         Particle particle = new Particle(
                 chamber.x + rand.nextInt(chamber.width),
                 chamber.y + rand.nextInt(chamber.height),
-                convertCmToPixels(speed),
+                speedCmPerSec, // Pass speed in cm/s directly
                 isHot ? Color.RED : Color.BLUE);
+    
         particles.add(particle);
     }
 
@@ -184,13 +188,6 @@ public class PlayArea extends JPanel {
             g.setColor(Color.RED);
             g.fillRect(door.x, door.y, door.width, door.height);
         }
-    }
-
-    private int convertCmToPixels(double cm) {
-        int resolution = Toolkit.getDefaultToolkit().getScreenResolution();
-        double pixelsPerInch = resolution;
-        double pixelsPerCm = pixelsPerInch / 2.54; // 1 inch = 2.54 cm
-        return (int) (cm * pixelsPerCm);
     }
 
     private void updateParticles() {

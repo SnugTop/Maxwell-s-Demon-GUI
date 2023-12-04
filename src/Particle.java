@@ -21,7 +21,7 @@ public class Particle {
         // Convert speed from cm/s to px/s
         int resolution = Toolkit.getDefaultToolkit().getScreenResolution();
         double pixelsPerCm = resolution / 2.54; // Convert PPI to pixels per cm
-        this.speedPxPerSec = speedCmPerSec * pixelsPerCm / 2000.0; // Adjust divisor to control speed
+        this.speedPxPerSec = speedCmPerSec * pixelsPerCm / 50.0; // Adjust divisor to control speed
 
         // Calculate velocity components
         Random rand = new Random();
