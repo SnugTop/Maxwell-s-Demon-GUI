@@ -39,7 +39,7 @@ public class GameWindow extends JFrame {
 
         setupButtonListeners();
 
-        Timer temperatureUpdateTimer = new Timer(1000, e -> updateTemperatures());
+        Timer temperatureUpdateTimer = new Timer(100, e -> updateTemperatures());
         temperatureUpdateTimer.start();
 
     }

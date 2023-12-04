@@ -13,7 +13,8 @@ public class PlayArea extends JPanel {
     private Rectangle rightChamber;
     private Rectangle door;
     private boolean initialized = false;
-    private final int DOOR_WIDTH = 10;
+    private final int doorWidth = 25;
+    private final int wallThickness = 25;
     private int previousWidth;
     private int previousHeight;
     private Timer timer;
@@ -91,7 +92,7 @@ public class PlayArea extends JPanel {
         int wallPosition = width / 2;
         leftChamber = new Rectangle(0, 0, wallPosition, height);
         rightChamber = new Rectangle(wallPosition, 0, wallPosition, height);
-        door = new Rectangle(wallPosition - DOOR_WIDTH / 2, height / 3, DOOR_WIDTH, height / 3);
+        door = new Rectangle(wallPosition - doorWidth / 2, height / 3, doorWidth, height / 3);
     }
 
     private void addInitialParticles() {
@@ -179,11 +180,20 @@ public class PlayArea extends JPanel {
     }
 
     private void drawWallAndDoor(Graphics g) {
-        g.setColor(Color.YELLOW);
-        int wallPosition = getWidth() / 2;
-        g.drawLine(wallPosition, 0, wallPosition, door.y);
-        g.drawLine(wallPosition, door.y + door.height, wallPosition, getHeight()); // Line below the door
-
+        g.setColor(Color.GRAY);
+    
+        // Calculate the wall's X position
+        int wallX = getWidth() / 2 - wallThickness / 2;
+    
+        // Draw the upper part of the wall (above the door)
+        g.fillRect(wallX, 0, wallThickness, door.y);
+    
+        // Draw the lower part of the wall (below the door)
+        int lowerWallY = door.y + door.height;
+        int lowerWallHeight = getHeight() - lowerWallY;
+        g.fillRect(wallX, lowerWallY, wallThickness, lowerWallHeight);
+    
+        // Draw the door
         if (!doorOpen) {
             g.setColor(Color.RED);
             g.fillRect(door.x, door.y, door.width, door.height);
@@ -191,7 +201,7 @@ public class PlayArea extends JPanel {
     }
 
     private void updateParticles() {
-        Rectangle centerWall = new Rectangle(getWidth() / 2 - DOOR_WIDTH / 2, 0, DOOR_WIDTH, getHeight());
+        Rectangle centerWall = new Rectangle(getWidth() / 2 - wallThickness / 2, 0, wallThickness, getHeight());
         for (Particle particle : particles) {
             particle.move(getBounds(), door, doorOpen, centerWall);
         }
