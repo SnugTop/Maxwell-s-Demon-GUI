@@ -66,7 +66,7 @@ public class GameWindow extends JFrame {
      */
     private void setupButtonListeners() {
         addParticlesButton.addActionListener(e -> {
-            playArea.addParticles();
+            playArea.particleDistribution();
             playArea.repaint();
         });
 
@@ -81,7 +81,7 @@ public class GameWindow extends JFrame {
      * readings in the chambers.
      */
     private void startTemperatureUpdateTimer() {
-        Timer temperatureUpdateTimer = new Timer(1000, e -> updateTemperatures());
+        Timer temperatureUpdateTimer = new Timer(100, e -> updateTemperatures());
         temperatureUpdateTimer.start();
     }
 

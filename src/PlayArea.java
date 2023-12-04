@@ -6,6 +6,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * The PlayArea class extends JPanel and represents the main area of the game.
+ * It manages the particles, their movement, and interactions within the game
+ * environment,
+ * including collisions with walls and the door.
+ */
 public class PlayArea extends JPanel {
     private List<Particle> particles;
     private boolean doorOpen;
@@ -19,6 +25,11 @@ public class PlayArea extends JPanel {
     private int previousHeight;
     private Timer timer;
 
+    /**
+     * Constructor for PlayArea. Initializes the game environment, including
+     * particles,
+     * chambers, and the door.
+     */
     public PlayArea() {
         particles = new ArrayList<>();
         doorOpen = false;
@@ -68,10 +79,13 @@ public class PlayArea extends JPanel {
             }
         });
 
-        timer = new Timer(100, e -> updateParticles()); // 100 ms delay
+        timer = new Timer(10, e -> updateParticles()); // 100 ms delay
         timer.start();
     }
 
+    /**
+     * Initializes the game by setting up the chambers, door, and initial particles.
+     */
     private void initializeGame() {
         if (!initialized) {
             int currentWidth = getWidth();
@@ -88,6 +102,13 @@ public class PlayArea extends JPanel {
         }
     }
 
+    /**
+     * Initializes the chambers and door based on the current width and height of
+     * the PlayArea.
+     *
+     * @param width  The current width of the PlayArea.
+     * @param height The current height of the PlayArea.
+     */
     private void initializeChambersAndDoor(int width, int height) {
         int wallPosition = width / 2;
         leftChamber = new Rectangle(0, 0, wallPosition, height);
@@ -95,6 +116,10 @@ public class PlayArea extends JPanel {
         door = new Rectangle(wallPosition - doorWidth / 2, height / 3, doorWidth, height / 3);
     }
 
+    /**
+     * Adds initial particles to each chamber.
+     * One hot and one cold in each chamber.
+     */
     private void addInitialParticles() {
         // Add two particles to each chamber
         addParticle(leftChamber, true); // Hot particle
@@ -103,22 +128,32 @@ public class PlayArea extends JPanel {
         addParticle(rightChamber, false); // Cold particle
     }
 
+    /**
+     * Adds additional particle to a specified chamber.
+     *
+     * @param chamber The chamber where the particle will be added.
+     * @param isHot   Indicates if the particle is hot (true) or cold (false).
+     */
     public void addParticle(Rectangle chamber, boolean isHot) {
         Random rand = new Random();
         // Speed in cm/s
         int speedCmPerSec = isHot ? rand.nextInt(3) + 4 : rand.nextInt(2) + 2; // 4-6 for hot, 2-4 for cold
-    
+
         // Create a new particle with the specified speed in cm/s
         Particle particle = new Particle(
                 chamber.x + rand.nextInt(chamber.width),
                 chamber.y + rand.nextInt(chamber.height),
                 speedCmPerSec, // Pass speed in cm/s directly
                 isHot ? Color.RED : Color.BLUE);
-    
+
         particles.add(particle);
     }
 
-    public void addParticles() {
+    /**
+     * This is how the particles are distributed
+     * specifically throughout the chambers
+     */
+    public void particleDistribution() {
         // Add new particles to each chamber
         addParticle(leftChamber, true);
         addParticle(leftChamber, false);
@@ -132,6 +167,10 @@ public class PlayArea extends JPanel {
         repaint();
     }
 
+    /**
+     * Handles resizing of the PlayArea, adjusting the position and scale of
+     * particles.
+     */
     private void handleResize() {
         int newWidth = getWidth();
         int newHeight = getHeight();
@@ -163,6 +202,11 @@ public class PlayArea extends JPanel {
         drawGameElements(g);
     }
 
+    /**
+     * Draws the game elements, including chambers, walls, door, and particles.
+     *
+     * @param g The Graphics object used for drawing.
+     */
     private void drawGameElements(Graphics g) {
         // Draw chambers
         g.setColor(Color.BLACK);
@@ -181,18 +225,18 @@ public class PlayArea extends JPanel {
 
     private void drawWallAndDoor(Graphics g) {
         g.setColor(Color.GRAY);
-    
+
         // Calculate the wall's X position
         int wallX = getWidth() / 2 - wallThickness / 2;
-    
+
         // Draw the upper part of the wall (above the door)
         g.fillRect(wallX, 0, wallThickness, door.y);
-    
+
         // Draw the lower part of the wall (below the door)
         int lowerWallY = door.y + door.height;
         int lowerWallHeight = getHeight() - lowerWallY;
         g.fillRect(wallX, lowerWallY, wallThickness, lowerWallHeight);
-    
+
         // Draw the door
         if (!doorOpen) {
             g.setColor(Color.RED);
@@ -200,6 +244,9 @@ public class PlayArea extends JPanel {
         }
     }
 
+    /**
+     * Updates the position and state of each particle.
+     */
     private void updateParticles() {
         Rectangle centerWall = new Rectangle(getWidth() / 2 - wallThickness / 2, 0, wallThickness, getHeight());
         for (Particle particle : particles) {
@@ -208,6 +255,13 @@ public class PlayArea extends JPanel {
         repaint();
     }
 
+    /**
+     * Calculates the average kinetic energy (interpreted as temperature) of
+     * particles in a chamber.
+     *
+     * @param chamberParticles The list of particles in a chamber.
+     * @return The calculated temperature of the chamber.
+     */
     double calculateChamberTemperature(List<Particle> chamberParticles) {
         double totalSquaredSpeed = 0;
         for (Particle particle : chamberParticles) {
@@ -218,11 +272,21 @@ public class PlayArea extends JPanel {
         }
         return chamberParticles.isEmpty() ? 0 : totalSquaredSpeed / chamberParticles.size();
     }
-    
+
+    /**
+     * Retrieves the list of particles in the left chamber.
+     *
+     * @return A list of particles in the left chamber.
+     */
     public List<Particle> getLeftChamberParticles() {
         return particles.stream().filter(p -> p.x < getWidth() / 2).collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves the list of particles in the right chamber.
+     *
+     * @return A list of particles in the right chamber.
+     */
     public List<Particle> getRightChamberParticles() {
         return particles.stream().filter(p -> p.x >= getWidth() / 2).collect(Collectors.toList());
     }

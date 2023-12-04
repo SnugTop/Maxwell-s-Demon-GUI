@@ -13,9 +13,9 @@ import java.awt.Toolkit;
 public class Particle {
     int x;
     int y;
-    private int speed;
     double vx;
     double vy;
+    private int speed;
     private double speedPxPerSec; // Speed in pixels per second
     private Color color;
 
