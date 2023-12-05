@@ -143,4 +143,8 @@ public class Particle {
     public double getVy() {
         return vy;
     }
+
+    public Color getColor() {
+        return color;
+    }
 }

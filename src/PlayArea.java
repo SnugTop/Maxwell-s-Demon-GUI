@@ -1,3 +1,4 @@
+
 //Check to see this cloned correctly
 import javax.swing.*;
 import java.awt.*;
@@ -152,7 +153,7 @@ public class PlayArea extends JPanel {
 
         // Ensure the chamber is large enough for spawning particles
         if (chamber.width <= safeMargin * 2 + particleSize || chamber.height <= safeMargin * 2 + particleSize) {
-            
+
             return;
         }
 
@@ -185,9 +186,14 @@ public class PlayArea extends JPanel {
     }
 
     public void resetGame() {
+        doorOpen = false; // Reset the door state
         particles.clear();
         addInitialParticles();
         repaint();
+        // Restart the timer if it was stopped
+        if (!timer.isRunning()) {
+            timer.start();
+        }
     }
 
     /**
@@ -271,11 +277,37 @@ public class PlayArea extends JPanel {
      * Updates the position and state of each particle.
      */
     private void updateParticles() {
+        //updateTemperatures();
         Rectangle centerWall = new Rectangle(getWidth() / 2 - wallThickness / 2, 0, wallThickness, getHeight());
         for (Particle particle : particles) {
             particle.move(getBounds(), door, doorOpen, centerWall);
         }
         repaint();
+
+        if (checkWinCondition()) {
+            timer.stop(); // Stop the animation timer
+    
+            double tempLeft = calculateChamberTemperature(getLeftChamberParticles());
+            double tempRight = calculateChamberTemperature(getRightChamberParticles());
+    
+            // Custom button text
+            Object[] options = {"Replay", "End"};
+            String winMessage = String.format("You Win!\nTemperature Left: %.2f\nTemperature Right: %.2f\nWhat would you like to do next?", tempLeft, tempRight);
+            int choice = JOptionPane.showOptionDialog(this,
+                                                      winMessage,
+                                                      "Game Over",
+                                                      JOptionPane.YES_NO_OPTION,
+                                                      JOptionPane.INFORMATION_MESSAGE,
+                                                      null,
+                                                      options,
+                                                      options[0]);
+    
+            if (choice == JOptionPane.YES_OPTION) {
+                resetGame(); // Replay the game
+            } else {
+                System.exit(0); // End the game
+            }
+        }
     }
 
     /**
@@ -312,6 +344,22 @@ public class PlayArea extends JPanel {
      */
     public List<Particle> getRightChamberParticles() {
         return particles.stream().filter(p -> p.x >= getWidth() / 2).collect(Collectors.toList());
+    }
+
+    public boolean checkWinCondition() {
+        if (!doorOpen) { // Check if the door is closed
+            List<Particle> leftParticles = getLeftChamberParticles();
+            List<Particle> rightParticles = getRightChamberParticles();
+    
+            boolean leftHot = leftParticles.stream().allMatch(p -> p.getColor().equals(Color.RED));
+            boolean rightCold = rightParticles.stream().allMatch(p -> p.getColor().equals(Color.BLUE));
+    
+            boolean leftCold = leftParticles.stream().allMatch(p -> p.getColor().equals(Color.BLUE));
+            boolean rightHot = rightParticles.stream().allMatch(p -> p.getColor().equals(Color.RED));
+    
+            return (leftHot && rightCold) || (leftCold && rightHot);
+        }
+        return false;
     }
 
 }
