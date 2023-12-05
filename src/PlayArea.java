@@ -79,7 +79,7 @@ public class PlayArea extends JPanel {
             }
         });
 
-        timer = new Timer(10, e -> updateParticles()); // 100 ms delay
+        timer = new Timer(50, e -> updateParticles()); // 100 ms delay
         timer.start();
     }
 
