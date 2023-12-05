@@ -1,7 +1,8 @@
 import javax.swing.SwingUtilities;
 
 /**
- * IMPORTANT:
+ * *******IMPORTANT PLEASE READ********
+ * 
  * I could not figure out how to clone this properly, so I just copied it from
  * my personal Repo. Please let me know if there are any issues with running it.
  * It runs for me with now issues passing many test so please let me know if there are 
