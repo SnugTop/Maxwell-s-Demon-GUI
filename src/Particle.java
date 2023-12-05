@@ -15,7 +15,6 @@ public class Particle {
     int y;
     double vx;
     double vy;
-    private int speed;
     private double speedPxPerSec; // Speed in pixels per second
     private Color color;
 
@@ -37,7 +36,9 @@ public class Particle {
         // Convert speed from cm/s to px/s
         int resolution = Toolkit.getDefaultToolkit().getScreenResolution();
         double pixelsPerCm = resolution / 2.54; // Convert PPI to pixels per cm
-        this.speedPxPerSec = speedCmPerSec * pixelsPerCm / 10.0; // Adjust divisor to control speed
+        // Adjust divisor to observe particles at a reasonable speed. Done here so that
+        // the adjustment is conistant throughout all calculations involving speed.
+        this.speedPxPerSec = speedCmPerSec * pixelsPerCm / 10.0; // Adjust divisor to change visual speed
 
         // Calculate velocity
         Random rand = new Random();
@@ -117,11 +118,6 @@ public class Particle {
      */
     public Rectangle getBounds() {
         return new Rectangle(x, y, 10, 10);
-    }
-
-    // Getters and setters
-    public int getSpeed() {
-        return speed;
     }
 
     public int getX() {
