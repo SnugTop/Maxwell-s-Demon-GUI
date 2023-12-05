@@ -129,20 +129,42 @@ public class PlayArea extends JPanel {
     }
 
     /**
-     * Adds additional particle to a specified chamber.
+     * Adds a particle to a specified chamber.
+     * This method creates a new particle with a random position within the
+     * specified chamber.
+     * The position is calculated to ensure the particle does not spawn too close to
+     * walls or outside the chamber.
+     * If the chamber is too small to safely spawn a particle, the method will not
+     * add a particle.
      *
-     * @param chamber The chamber where the particle will be added.
-     * @param isHot   Indicates if the particle is hot (true) or cold (false).
+     * @param chamber The chamber (Rectangle) where the particle will be added.
+     * @param isHot   Indicates if the particle is hot (true) or cold (false). Hot
+     *                particles have higher speeds.
      */
     public void addParticle(Rectangle chamber, boolean isHot) {
         Random rand = new Random();
         // Speed in cm/s
         int speedCmPerSec = isHot ? rand.nextInt(3) + 4 : rand.nextInt(2) + 2; // 4-6 for hot, 2-4 for cold
 
-        // Create a new particle with the specified speed in cm/s
+        int particleSize = 10;
+        int safeMargin = 15; // Minimum distance from walls
+
+        // Ensure the chamber is large enough for spawning particles
+        if (chamber.width <= safeMargin * 2 + particleSize || chamber.height <= safeMargin * 2 + particleSize) {
+            
+            return;
+        }
+
+        // Calculate safe bounds for particle creation
+        int minX = chamber.x + safeMargin;
+        int maxX = chamber.x + chamber.width - safeMargin - particleSize;
+        int minY = chamber.y + safeMargin;
+        int maxY = chamber.y + chamber.height - safeMargin - particleSize;
+
+        // Create a new particle within the safe bounds
         Particle particle = new Particle(
-                chamber.x + rand.nextInt(chamber.width),
-                chamber.y + rand.nextInt(chamber.height),
+                minX + rand.nextInt(maxX - minX + 1),
+                minY + rand.nextInt(maxY - minY + 1),
                 speedCmPerSec, // Pass speed in cm/s directly
                 isHot ? Color.RED : Color.BLUE);
 
