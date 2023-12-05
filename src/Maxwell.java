@@ -2,12 +2,13 @@ import javax.swing.SwingUtilities;
 
 /**
  * *******IMPORTANT PLEASE READ********
- * Testing to see if I was able to clone this properly.
+ * PLEASE GRADE THIS REPOSITORY
  * 
- * I could not figure out how to clone this properly, so I just copied it from
- * my personal Repo. Please let me know if there are any issues with running it.
- * It runs for me with no issues, passing many test so please let me know if there are 
- * any issues.
+ * After many issues I was finally able to succesfully clone the original repository
+ * to a new repository in my GitHub Classroom. It is marked final submission.
+ * Please grade this repository if possible. Thank you! 
+ * There should be no issues with my program running. It complies and passes many tests.
+ * If there are, please let me know.
  * 
  * The Maxwell class is responsible for initializing and displaying the game
  * window.
