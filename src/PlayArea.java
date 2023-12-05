@@ -1,3 +1,4 @@
+
 //Check to see this cloned correctly
 import javax.swing.*;
 import java.awt.*;
@@ -10,8 +11,8 @@ import java.util.stream.Collectors;
 /**
  * The PlayArea class extends JPanel and represents the main area of the game.
  * It manages the particles, their movement, and interactions within the game
- * environment,
- * including collisions with walls and the door.
+ * environment, including collisions with walls and the door. It also checks
+ * for the win condition and handles the game reset.
  */
 public class PlayArea extends JPanel {
     private List<Particle> particles;
@@ -28,8 +29,8 @@ public class PlayArea extends JPanel {
 
     /**
      * Constructor for PlayArea. Initializes the game environment, including
-     * particles,
-     * chambers, and the door.
+     * particles, chambers, and the door. Sets up event listeners for mouse
+     * actions and component resizing.
      */
     public PlayArea() {
         particles = new ArrayList<>();
@@ -152,7 +153,7 @@ public class PlayArea extends JPanel {
 
         // Ensure the chamber is large enough for spawning particles
         if (chamber.width <= safeMargin * 2 + particleSize || chamber.height <= safeMargin * 2 + particleSize) {
-            
+
             return;
         }
 
@@ -185,9 +186,14 @@ public class PlayArea extends JPanel {
     }
 
     public void resetGame() {
+        doorOpen = false; // Reset the door state
         particles.clear();
         addInitialParticles();
         repaint();
+        // Restart the timer if it was stopped
+        if (!timer.isRunning()) {
+            timer.start();
+        }
     }
 
     /**
@@ -268,7 +274,10 @@ public class PlayArea extends JPanel {
     }
 
     /**
-     * Updates the position and state of each particle.
+     * Checks if all hot particles are in one chamber and all cold particles
+     * are in the other chamber, and the door is closed. If this condition is met,
+     * stops the game, displays a win message with final temperatures, and
+     * offers options to replay or end the game.
      */
     private void updateParticles() {
         Rectangle centerWall = new Rectangle(getWidth() / 2 - wallThickness / 2, 0, wallThickness, getHeight());
@@ -276,11 +285,39 @@ public class PlayArea extends JPanel {
             particle.move(getBounds(), door, doorOpen, centerWall);
         }
         repaint();
+
+        if (checkWinCondition()) {
+            timer.stop();
+
+            double tempLeft = calculateChamberTemperature(getLeftChamberParticles());
+            double tempRight = calculateChamberTemperature(getRightChamberParticles());
+
+            // Win button options
+            Object[] options = { "Replay", "End" };
+            String winMessage = String.format(
+                    "You Win!\nTemperature Left: %.2f\nTemperature Right: %.2f\nWhat would you like to do next?",
+                    tempLeft, tempRight);
+            int choice = JOptionPane.showOptionDialog(this,
+                    winMessage,
+                    "Game Over",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
+
+            if (choice == JOptionPane.YES_OPTION) {
+                resetGame();
+            } else {
+                System.exit(0);
+            }
+        }
     }
 
     /**
      * Calculates the average kinetic energy (interpreted as temperature) of
-     * particles in a chamber.
+     * particles in a chamber. This is used to display the temperature of each
+     * chamber in the game.
      *
      * @param chamberParticles The list of particles in a chamber.
      * @return The calculated temperature of the chamber.
@@ -312,6 +349,30 @@ public class PlayArea extends JPanel {
      */
     public List<Particle> getRightChamberParticles() {
         return particles.stream().filter(p -> p.x >= getWidth() / 2).collect(Collectors.toList());
+    }
+
+    /**
+     * Checks the win condition based on the distribution of hot and cold
+     * particles in the chambers. The win condition is met when all hot
+     * particles are in one chamber and all cold particles are in the other,
+     * and the door is closed.
+     *
+     * @return true if the win condition is met, false otherwise.
+     */
+    public boolean checkWinCondition() {
+        if (!doorOpen) { // Check if the door is closed
+            List<Particle> leftParticles = getLeftChamberParticles();
+            List<Particle> rightParticles = getRightChamberParticles();
+
+            boolean leftHot = leftParticles.stream().allMatch(p -> p.getColor().equals(Color.RED));
+            boolean rightCold = rightParticles.stream().allMatch(p -> p.getColor().equals(Color.BLUE));
+
+            boolean leftCold = leftParticles.stream().allMatch(p -> p.getColor().equals(Color.BLUE));
+            boolean rightHot = rightParticles.stream().allMatch(p -> p.getColor().equals(Color.RED));
+
+            return (leftHot && rightCold) || (leftCold && rightHot);
+        }
+        return false;
     }
 
 }
