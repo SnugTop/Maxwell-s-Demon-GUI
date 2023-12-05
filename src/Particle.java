@@ -15,7 +15,7 @@ public class Particle {
     int y;
     double vx;
     double vy;
-    private double speedPxPerSec; // Speed in pixels per second
+    private double speedPxPerSec; 
     private Color color;
 
     /**

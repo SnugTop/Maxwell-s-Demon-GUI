@@ -1,5 +1,3 @@
-
-//Check to see this cloned correctly
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,6 +7,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
+ * Disclaimer: I used Chat GPT to help me with this class.
+ * 
  * The PlayArea class extends JPanel and represents the main area of the game.
  * It manages the particles, their movement, and interactions within the game
  * environment, including collisions with walls and the door. It also checks
@@ -145,7 +145,6 @@ public class PlayArea extends JPanel {
      */
     public void addParticle(Rectangle chamber, boolean isHot) {
         Random rand = new Random();
-        // Speed in cm/s
         int speedCmPerSec = isHot ? rand.nextInt(3) + 4 : rand.nextInt(2) + 2; // 4-6 for hot, 2-4 for cold
 
         int particleSize = 10;
@@ -167,7 +166,7 @@ public class PlayArea extends JPanel {
         Particle particle = new Particle(
                 minX + rand.nextInt(maxX - minX + 1),
                 minY + rand.nextInt(maxY - minY + 1),
-                speedCmPerSec, // Pass speed in cm/s directly
+                speedCmPerSec, 
                 isHot ? Color.RED : Color.BLUE);
 
         particles.add(particle);
@@ -186,11 +185,10 @@ public class PlayArea extends JPanel {
     }
 
     public void resetGame() {
-        doorOpen = false; // Reset the door state
+        doorOpen = false; 
         particles.clear();
         addInitialParticles();
         repaint();
-        // Restart the timer if it was stopped
         if (!timer.isRunning()) {
             timer.start();
         }
@@ -255,7 +253,6 @@ public class PlayArea extends JPanel {
     private void drawWallAndDoor(Graphics g) {
         g.setColor(Color.GRAY);
 
-        // Calculate the wall's X position
         int wallX = getWidth() / 2 - wallThickness / 2;
 
         // Draw the upper part of the wall (above the door)
@@ -315,7 +312,7 @@ public class PlayArea extends JPanel {
     }
 
     /**
-     * Calculates the average kinetic energy (interpreted as temperature) of
+     * Calculates the average kinetic energy (temperature) of
      * particles in a chamber. This is used to display the temperature of each
      * chamber in the game.
      *
@@ -360,7 +357,7 @@ public class PlayArea extends JPanel {
      * @return true if the win condition is met, false otherwise.
      */
     public boolean checkWinCondition() {
-        if (!doorOpen) { // Check if the door is closed
+        if (!doorOpen) { 
             List<Particle> leftParticles = getLeftChamberParticles();
             List<Particle> rightParticles = getRightChamberParticles();
 

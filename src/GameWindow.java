@@ -20,19 +20,15 @@ public class GameWindow extends JFrame {
      * buttons, and temperature display labels.
      */
     public GameWindow() {
-        // Window setup
         setTitle("Maxwell's Demon");
         setSize(800, 600);
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Initialize components
         initializeComponents();
 
-        // Set up button listeners
         setupButtonListeners();
 
-        // Start temperature update timer
         startTemperatureUpdateTimer();
     }
 
