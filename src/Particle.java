@@ -9,13 +9,14 @@ import java.awt.Toolkit;
  * color.
  * It is capable of moving within a defined area, handling collisions with walls
  * and other boundaries.
+ * 
  */
 public class Particle {
     int x;
     int y;
     double vx;
     double vy;
-    private double speedPxPerSec; 
+    private double speedPxPerSec;
     private Color color;
 
     /**

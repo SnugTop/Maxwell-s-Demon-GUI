@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  * It manages the particles, their movement, and interactions within the game
  * environment, including collisions with walls and the door. It also checks
  * for the win condition and handles the game reset.
+ * 
  */
 public class PlayArea extends JPanel {
     private List<Particle> particles;
@@ -166,7 +167,7 @@ public class PlayArea extends JPanel {
         Particle particle = new Particle(
                 minX + rand.nextInt(maxX - minX + 1),
                 minY + rand.nextInt(maxY - minY + 1),
-                speedCmPerSec, 
+                speedCmPerSec,
                 isHot ? Color.RED : Color.BLUE);
 
         particles.add(particle);
@@ -185,7 +186,7 @@ public class PlayArea extends JPanel {
     }
 
     public void resetGame() {
-        doorOpen = false; 
+        doorOpen = false;
         particles.clear();
         addInitialParticles();
         repaint();
@@ -357,7 +358,7 @@ public class PlayArea extends JPanel {
      * @return true if the win condition is met, false otherwise.
      */
     public boolean checkWinCondition() {
-        if (!doorOpen) { 
+        if (!doorOpen) {
             List<Particle> leftParticles = getLeftChamberParticles();
             List<Particle> rightParticles = getRightChamberParticles();
 

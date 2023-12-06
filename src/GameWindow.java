@@ -6,6 +6,7 @@ import java.awt.*;
  * displaying the main window of the application. It includes a play area,
  * buttons for adding particles and resetting the game, and labels to display
  * the temperature in different chambers.
+ * 
  */
 public class GameWindow extends JFrame {
 
