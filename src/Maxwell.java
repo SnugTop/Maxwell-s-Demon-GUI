@@ -1,6 +1,6 @@
 import javax.swing.SwingUtilities;
 
-/**
+/*
  * *******IMPORTANT PLEASE READ********
  * PLEASE GRADE THIS REPOSITORY
  * 
@@ -9,7 +9,9 @@ import javax.swing.SwingUtilities;
  * Please grade this repository if possible. Thank you! 
  * There should be no issues with my program running. It complies and passes many tests.
  * If there are, please let me know.
- * 
+ */
+
+/**
  * The Maxwell class is responsible for initializing and displaying the game
  * window.
  * It uses SwingUtilities to ensure that the creation and display of the window
